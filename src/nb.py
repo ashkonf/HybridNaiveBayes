@@ -8,7 +8,7 @@ import distributions
 
 ## Feature ##############################################################################
 
-class Feature():
+class Feature(object):
 
     def __init__(self, name, distribution, value):
         self.name = name
@@ -24,7 +24,7 @@ class Feature():
 
 ## NaiveBayesClassifier #################################################################
 
-class NaiveBayesClassifier():
+class NaiveBayesClassifier(object):
 
     def __init__(self, featurizer = None):
         self.featurizer = featurizer
