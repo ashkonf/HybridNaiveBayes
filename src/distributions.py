@@ -16,12 +16,6 @@ class Distribution(object):
 
     @classmethod
     def momEstimate(cls, points):
-        if len(points) == 0:
-            raise Exception("data set must contain at least one point")
-        return cls.mleEstimate(points)
-
-    @classmethod
-    def __momEstimate(cls, points):
         raise NotImplementedError("Not implemented")
 
 ## ContinuousDistribution ##############################################################################
