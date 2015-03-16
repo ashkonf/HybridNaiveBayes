@@ -3,7 +3,7 @@
 
 A generalized implementation of the Naive Bayes classifier in Python that provides the following functionality:
 
-1. Support for both categorical and ordered featrues.
+1. Support for both categorical and ordered features.
 2. Support for both discrete and continuous ordered features.
 3. Support for modeling ordered features using arbitrary probability distributions.
 
