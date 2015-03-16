@@ -86,12 +86,12 @@ class Gaussian(ContinuousDistribution):
         variance = 0.0
         for point in points:
             variance += math.pow(float(point) - mean, 2.0)
-            variance /= (numPoints - 1.0)
+        variance /= (numPoints - 1.0)
         stdev = math.sqrt(variance)
 
         return cls(mean, stdev)
 
-## Gaussian ############################################################################################
+## BoundedGaussian ####################################################################################
 
 class BoundedGaussian(ContinuousDistribution):
 
@@ -344,7 +344,7 @@ class Poisson(DiscreteDistribution):
 
     def probability(self, value):
         first = float(math.pow(self.lambdaa, value)) / float(math.factorial(value))
-        second = math.exp(-float(self.lambdaa))
+        second = float(math.exp(-float(self.lambdaa)))
         return first * second
 
     def __str__(self):
