@@ -1,5 +1,10 @@
 # CompleteNB
-A generalized implementation of the Naive Bayes classifier in Python that allows for the simultaneous use of categorical and ordered features.
+
+A generalized implementation of the Naive Bayes classifier in Python that provides the following functionality:
+
+1. Support for both categorical and ordered featrues.
+2. Support for both discrete and continuous ordered features.
+3. Support for modeling of ordered features using arbitrary probability distributions.
 
 ---
 
