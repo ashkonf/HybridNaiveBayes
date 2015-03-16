@@ -1,5 +1,7 @@
 # CompleteNB
 
+---
+
 A generalized implementation of the Naive Bayes classifier in Python that provides the following functionality:
 
 1. Support for both categorical and ordered featrues.
