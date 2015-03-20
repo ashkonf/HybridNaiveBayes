@@ -214,7 +214,7 @@ class Exponential(ContinuousDistribution):
 
 class KernelDensityEstimate(ContinuousDistribution):
     '''
-        This paper for more information about using Gaussian
+        See this paper for more information about using Gaussian
         Kernal Density Estimation with the Naive Bayes Classifier:
         http://www.cs.iastate.edu/~honavar/bayes-continuous.pdf
     '''
