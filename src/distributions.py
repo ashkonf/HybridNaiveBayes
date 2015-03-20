@@ -213,22 +213,24 @@ class Exponential(ContinuousDistribution):
 ## KernelDensityEstimate ##############################################################################
 
 class KernelDensityEstimate(ContinuousDistribution):
+    '''
+        This paper for more information about using Gaussian
+        Kernal Density Estimation with the Naive Bayes Classifier:
+        http://www.cs.iastate.edu/~honavar/bayes-continuous.pdf
+    '''
 
     def __init__(self, observedPoints):
         self.observedPoints = observedPoints
         self.numObservedPoints = float(len(observedPoints))
+        self.stdev = 1.0 / math.sqrt(self.numObservedPoints)
 
     def pdf(self, value):
-        stdev = 1.0 / math.sqrt(self.numObservedPoints)
-        sum = 0.0
-        for point in self.observedPoints:
-            sum += self.normalPdf(point, stdev, value)
-        return sum / self.numObservedPoints
+        pdfValues = [self.__normalPdf(point, self.stdev, value) for point in self.observedPoints]
+        return sum(pdfValues) / self.numObservedPoints
 
-    def normalPdf(self, mean, stdev, value):
-        variance = math.pow(stdev, 2.0)
+    def __normalPdf(self, mean, stdev, value):
         numerator = math.exp(-math.pow(float(value - mean) / stdev, 2.0) / 2.0)
-        denominator = math.sqrt(2 * math.pi * variance)
+        denominator = math.sqrt(2 * math.pi * math.pow(stdev, 2.0))
         return numerator / denominator
 
     def cdf(self, value):
