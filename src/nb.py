@@ -3,6 +3,7 @@ import sys
 import collections
 import math
 import operator
+import copy
 
 import distributions
 
@@ -17,6 +18,9 @@ class Feature(object):
 
     def __str__(self):
         return self.name + " => " + str(self.value)
+    
+    def hashable(self):
+        return (self.name, self.value)
 
     @classmethod
     def binary(cls, name):
@@ -28,18 +32,18 @@ class NaiveBayesClassifier(object):
 
     def __init__(self, featurizer = None):
         self.featurizer = featurizer
-        self.labelCounts = None
+        self.priors = None
         self.distributions = None
 
     def train(self, objects, labels):
         featureValues = collections.defaultdict(lambda: collections.defaultdict(lambda: []))
         distributionTypes = {}
 
-        self.labelCounts = collections.Counter()
+        labelCounts = collections.Counter()
 
         for index, object in enumerate(objects):
             label = labels[index]
-            self.labelCounts[label] += 1
+            labelCounts[label] += 1
             for feature in self.featurize(object):
                 featureValues[label][feature.name].append(feature.value)
                 distributionTypes[feature.name] = feature.distribution
@@ -52,25 +56,27 @@ class NaiveBayesClassifier(object):
                     if issubclass(distributionTypes[featureName], distributions.Binary):
                         trueCount = len([value for value in values if value])
                         # the absence of binary feature is treated as it having been present with a False value
-                        falseCount = self.labelCounts[label] - trueCount
+                        falseCount = labelCounts[label] - trueCount
                         distribution = distributions.Binary(trueCount, falseCount)
                     else:
                         distribution = distributionTypes[featureName].mleEstimate(values)
                 except distributions.EstimationError, distributions.ParametrizationError:
                     if issubclass(distributionTypes[featureName], distributions.Binary):
-                        distribution = distributions.Binary(0, self.labelCounts[label])
+                        distribution = distributions.Binary(0, labelCounts[label])
                     elif issubclass(distributionTypes[featureName], distributions.DiscreteDistribution):
                         distribution = distributions.DiscreteUniform(-sys.maxint, sys.maxint)
                     else:
                         distribution = distributions.Uniform(-sys.float_info.max, sys.float_info.max)
                 self.distributions[label][featureName] = distribution
 
+        self.priors = collections.Counter()
+        for label in labelCounts:
+            self.priors[label] = math.log(labelCounts[label])
+
     def __labelWeights(self, object):
         features = self.featurize(object)
 
-        labelWeights = collections.Counter()
-        for label in self.labelCounts:
-            labelWeights[label] = math.log(self.labelCounts[label])
+        labelWeights = copy.deepcopy(self.priors)
 
         for feature in features:
             for label in self.labelCounts:

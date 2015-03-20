@@ -8,32 +8,32 @@ import collections
 class Distribution(object):
 
     def __init__(self):
-        raise NotImplementedError("Not implemented")
+        raise NotImplementedError("Subclasses should override.")
 
     @classmethod
     def mleEstimate(cls, points):
-        raise NotImplementedError("Not implemented")
+        raise NotImplementedError("Subclasses should override.")
 
     @classmethod
     def momEstimate(cls, points):
-        raise NotImplementedError("Not implemented")
+        raise NotImplementedError("Subclasses should override.")
 
 ## ContinuousDistribution ##############################################################################
 
 class ContinuousDistribution(Distribution):
 
     def pdf(self, value):
-        raise NotImplementedError("Not implemented")
+        raise NotImplementedError("Subclasses should override.")
 
     def cdf(self, value):
-        raise NotImplementedError("Not implemented")
+        raise NotImplementedError("Subclasses should override.")
 
 ## Uniform #############################################################################################
 
 class Uniform(ContinuousDistribution):
 
     def __init__(self, alpha, beta):
-        if alpha == beta: raise Exception("alpha and beta cannot be equivalent")
+        if alpha == beta: raise ParametrizationError("alpha and beta cannot be equivalent")
         self.alpha = alpha
         self.beta = beta
         self.range = beta - alpha
@@ -61,8 +61,8 @@ class Gaussian(ContinuousDistribution):
     def __init__(self, mean, stdev):
         self.mean = mean
         self.stdev = stdev
-        if stdev == 0.0: raise Exception("standard deviation must be non-zero")
-        if stdev < 0.0: raise Exception("standard deviation must be positive")
+        if stdev == 0.0: raise ParametrizationError("standard deviation must be non-zero")
+        if stdev < 0.0: raise ParametrizationError("standard deviation must be positive")
         self.variance = math.pow(stdev, 2.0)
 
     def pdf(self, value):
@@ -79,7 +79,7 @@ class Gaussian(ContinuousDistribution):
     @classmethod
     def mleEstimate(cls, points):
         numPoints = float(len(points))
-        if numPoints <= 1: raise Exception("must provide at least 2 training points")
+        if numPoints <= 1: raise EstimationError("must provide at least 2 training points")
 
         mean = sum(points) / numPoints
 
@@ -91,14 +91,14 @@ class Gaussian(ContinuousDistribution):
 
         return cls(mean, stdev)
 
-## BoundedGaussian ####################################################################################
+## TruncatedGaussian ##################################################################################
 
-class BoundedGaussian(ContinuousDistribution):
+class TruncatedGaussian(ContinuousDistribution):
 
     def __init__(self, mean, stdev, alpha, beta):
         self.mean = mean
-        if stdev == 0.0: raise Exception("standard deviation must be non-zero")
-        if stdev < 0.0: raise Exception("standard deviation must be positive")
+        if stdev == 0.0: raise ParametrizationError("standard deviation must be non-zero")
+        if stdev < 0.0: raise ParametrizationError("standard deviation must be positive")
         self.stdev = stdev
         self.variance = math.pow(stdev, 2.0)
         self.alpha = alpha
@@ -122,13 +122,13 @@ class BoundedGaussian(ContinuousDistribution):
             return numerator / denominator
 
     def __str__(self):
-        return "Continuous Bounded Gaussian (Normal) distribution: mean = %s, standard deviation = %s, lower bound = %s, upper bound = %s" % (self.mean, self.stdev, self.alpha, self.beta)
+        return "Continuous Truncated Gaussian (Normal) distribution: mean = %s, standard deviation = %s, lower bound = %s, upper bound = %s" % (self.mean, self.stdev, self.alpha, self.beta)
 
     @classmethod
     def mleEstimate(cls, points):
         numPoints = float(len(points))
 
-        if numPoints <= 1: raise Exception("must provide at least 2 training points")
+        if numPoints <= 1: raise EstimationError("must provide at least 2 training points")
 
         mean = sum(points) / numPoints
 
@@ -150,8 +150,8 @@ class LogNormal(ContinuousDistribution):
     def __init__(self, mean, stdev):
         self.mean = mean
         self.stdev = stdev
-        if stdev == 0.0: raise Exception("standard deviation must be non-zero")
-        if stdev < 0.0: raise Exception("standard deviation must be positive")
+        if stdev == 0.0: raise ParametrizationError("standard deviation must be non-zero")
+        if stdev < 0.0: raise ParametrizationError("standard deviation must be positive")
         self.variance = math.pow(stdev, 2.0)
 
     def pdf(self, value):
@@ -170,7 +170,7 @@ class LogNormal(ContinuousDistribution):
     def mleEstimate(cls, points):
         numPoints = float(len(points))
 
-        if numPoints <= 1: raise Exception("must provide at least 2 training points")
+        if numPoints <= 1: raise EstimationError("must provide at least 2 training points")
 
         mean = sum(math.log(float(point)) for point in points) / numPoints
 
@@ -201,79 +201,14 @@ class Exponential(ContinuousDistribution):
 
     @classmethod
     def mleEstimate(cls, points):
-        mean = float(sum(points))
-        numPoints = len(points)
-        if numPoints > 0:
-            mean /= float(numPoints)
-        lambdaa = 1.0 / mean if mean != 0 else 0.0
-
-        return cls(lambdaa)
-
-## Pareto #############################################################################################
-
-class Pareto(ContinuousDistribution):
-
-    def __init__(self, min, alpha):
-        self.min = min
-        self.alpha = alpha
-
-    def pdf(self, value):
-        if value < self.min: return 0.0
-        else: return self.alpha * math.pow(self.min, self.alpha) / math.pow(value, self.alpha + 1.0)
-
-    def cdf(self, value):
-        if value < self.min: return 0.0
-        else: return 1.0 - math.pow(self.min / value, self.alpha)
-
-    def __str__(self):
-        return "Continuous Pareto distribution: minimum = %s, alpha = %s" % (self.min, self.alpha)
-
-    @classmethod
-    def mleEstimate(cls, points):
-        raise NotImplementedError("not implemented")
-
-## Gamma #############################################################################################
-
-class Gamma(ContinuousDistribution):
-
-    def __init__(self, k, theta):
-        self.k = k
-        self.theta = theta
-        self.denominator = math.gamma(self.k) * math.pow(self.theta, self.k)
-
-    def pdf(self, value):
-        return math.pow(value, self.k - 1.0) * math.exp(-value / self.theta) / self.denominator
-
-    def cdf(self, value):
-        raise NotImplementedError("not implemented")
-
-    def __str__(self):
-        return "Continuous Gamma distribution: k = %s, theta = %s" % (self.k, self.theta)
-
-    @classmethod
-    def mleEstimate(cls, points):
-        raise NotImplementedError("not implemented")
-
-## Beta ##############################################################################################
-
-class Beta(ContinuousDistribution):
-
-    def __init__(self, alpha, beta):
-        self.alpha = alpha
-        self.beta = beta
-
-    def pdf(self, value):
-        return math.pow(value, self.alpha - 1.0) * math.pow(1.0 - value, self.beta - 1.0)
-
-    def cdf(self, value):
-        raise NotImplementedError("not implemented")
-
-    def __str__(self):
-        return "Continuous Beta distribution: alpha = %s, beta = %s" % (self.alpha, self.beta)
-
-    @classmethod
-    def mleEstimate(cls, points):
-        raise NotImplementedError("not implemented")
+        if len(points) == 0: raise EstimationError("Must provide at least one point.")
+        if min(points) < 0.0: raise EstimationError("Exponential distribution supports non-negative values.")
+        
+        mean = float(sum(points)) / float(len(points))
+        
+        if mean == 0.0: raise ParametrizationError("Mean of points must be positive.")
+        
+        return cls(1.0 / mean)
 
 ## KernelDensityEstimate ##############################################################################
 
@@ -311,7 +246,7 @@ class KernelDensityEstimate(ContinuousDistribution):
 class DiscreteDistribution(Distribution):
 
     def probability(self, value):
-        raise NotImplementedError("Not implemented")
+        raise NotImplementedError("Subclasses should override.")
 
 ## Uniform ############################################################################################
 
