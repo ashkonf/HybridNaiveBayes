@@ -16,7 +16,7 @@ class Feature(object):
         self.distribution = distribution
         self.value = value
 
-    def __str__(self):
+    def __repr__(self):
         return self.name + " => " + str(self.value)
     
     def hashable(self):
@@ -25,6 +25,25 @@ class Feature(object):
     @classmethod
     def binary(cls, name):
         return cls(name, distributions.Binary, True)
+
+## ExtractedFeature #####################################################################
+
+class ExtractedFeature(Feature):
+
+    def __init__(self, object):
+        name = self.__class__.__name__
+        distribution = self.distribution()
+        value = self.extract(object)
+        super(ExtractedFeature, self).__init__(name, distribution, value)
+
+    def extract(self, object):
+        # returns feature value corresponding to |object|
+        raise NotImplementedError("Subclasses should override.")
+
+    @classmethod
+    def distribution(cls):
+        # returns the distribution this feature conforms to
+        raise NotImplementedError("Subclasses should override.")
 
 ## NaiveBayesClassifier #################################################################
 
@@ -112,5 +131,5 @@ class NaiveBayesClassifier(object):
 
     def featurize(self, object):
         if self.featurizer is None:
-            raise Exception("if no featurizer is provided, featurize must be overridden")
+            raise Exception("If no featurizer is provided upon initialization, self.featurize must be overridden.")
         return self.featurizer(object)
