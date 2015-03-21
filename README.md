@@ -15,3 +15,4 @@ This Naive Bayes Classifier implementation has none of the above mentioned limit
 
 ---
 
+![Alt text](justification.pdf "An example of an AFLineChart instance shown in landscape mode.")
