@@ -13,6 +13,4 @@ Most Naive Bayes implementations allow only for categorical features. A small nu
 
 This Naive Bayes Classifier implementation has none of the above mentioned limitations. First and foremost, it allows for the simultaneous use of categorical and ordered features. In addition and in some cases just as importantly, it allows the client to specify the distributions used to parametrize ordered features. There is no assumption that every ordered feature must conform to the Normal Distribution. This library provides implementations of many other commonly used distributions the client can elect to use in modeling ordered features. Furthermore, the implementation of the Naive Bayes Classifier allows the client to subclass the DiscreteDistribution or ContinuousDistribution classes to implement any distribution this library may not have implemented for use in modeling ordered features. In short, this library allows clients to model ordered features using any valid probability distribution imaginable.
 
----
-
-![Alt text](justification.pdf "An example of an AFLineChart instance shown in landscape mode.")
+See Derivation.pdf for a full mathematical justification of this implementation of the Naive Bayes Classifier.
