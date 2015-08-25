@@ -1,4 +1,4 @@
-# Naive Bayes
+# Mixed Naive Bayes
 
 
 A generalized implementation of the Naive Bayes classifier in Python that provides the following functionality:
