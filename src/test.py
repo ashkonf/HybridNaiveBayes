@@ -2,7 +2,9 @@ import requests
 import nb
 import distributions
 
+# The data set is explained here: https://archive.ics.uci.edu/ml/datasets/Statlog+(German+Credit+Data)
 raw_data = requests.get("https://archive.ics.uci.edu/ml/machine-learning-databases/statlog/german/german.data").text.strip()
+
 lines = raw_data.split("\n")
 value_matrix = [line.split() for line in lines]
 data_points = [values[:-1] for values in value_matrix]
