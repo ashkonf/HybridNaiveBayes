@@ -74,7 +74,7 @@ class Gaussian(ContinuousDistribution):
         return 0.5 * (1.0 + math.erf((value - self.mean) / math.sqrt(2.0 * self.variance)))
 
     def __str__(self):
-        return "Continuous Gaussian (Normal) distribution: mean = %s, standard deviation = %s" %(self.mean, self.stdev)
+        return "Continuous Gaussian (Normal) distribution: mean = %s, standard deviation = %s" % (self.mean, self.stdev)
 
     @classmethod
     def mleEstimate(cls, points):
@@ -189,6 +189,12 @@ class Exponential(ContinuousDistribution):
     def __init__(self, lambdaa):
         # 2 "a"s to avoid confusion with "lambda" keyword
         self.lambdaa = lambdaa
+    
+    def mean(self):
+        return 1.0 / self.lambdaa
+    
+    def variance(self):
+        return 1.0 / pow(self.lambdaa, 2.0)
 
     def pdf(self, value):
         return self.lambdaa * math.exp(-self.lambdaa * value)
@@ -202,7 +208,7 @@ class Exponential(ContinuousDistribution):
     @classmethod
     def mleEstimate(cls, points):
         if len(points) == 0: raise EstimationError("Must provide at least one point.")
-        if min(points) < 0.0: raise EstimationError("Exponential distribution supports non-negative values.")
+        if min(points) < 0.0: raise EstimationError("Exponential distribution only supports non-negative values.")
         
         mean = float(sum(points)) / float(len(points))
         
@@ -280,9 +286,13 @@ class Poisson(DiscreteDistribution):
         self.lambdaa = lambdaa
 
     def probability(self, value):
-        first = float(math.pow(self.lambdaa, value)) / float(math.factorial(value))
-        second = float(math.exp(-float(self.lambdaa)))
-        return first * second
+        try:
+            first = float(math.pow(self.lambdaa, value)) / float(math.factorial(value))
+            second = float(math.exp(-float(self.lambdaa)))
+            return first * second
+        except OverflowError as error:
+            # this is an approximation to the probability of very unlikely events
+            return 0.0
 
     def __str__(self):
         return "Discrete Poisson distribution: lamda = %s" % self.lambdaa

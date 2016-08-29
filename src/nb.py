@@ -53,6 +53,11 @@ class NaiveBayesClassifier(object):
         self.featurizer = featurizer
         self.priors = None
         self.distributions = None
+    
+    def featurize(self, object):
+        if self.featurizer is None:
+            raise Exception("If no featurizer is provided upon initialization, self.featurize must be overridden.")
+        return self.featurizer(object)
 
     def train(self, objects, labels):
         featureValues = collections.defaultdict(lambda: collections.defaultdict(lambda: []))
@@ -90,6 +95,10 @@ class NaiveBayesClassifier(object):
 
         self.priors = collections.Counter()
         for label in labelCounts:
+            # A label count can never be 0 because we only generate
+            # a label count upon observing the first data point that
+            # belongs to it. As a result, we don't worrying about
+            # the argument to log being 0 here.
             self.priors[label] = math.log(labelCounts[label])
 
     def __labelWeights(self, object):
@@ -98,38 +107,73 @@ class NaiveBayesClassifier(object):
         labelWeights = copy.deepcopy(self.priors)
 
         for feature in features:
-            for label in self.labelCounts:
+            for label in self.priors:
                 if feature.name in self.distributions[label]:
                     distribution = self.distributions[label][feature.name]
                     if isinstance(distribution, distributions.DiscreteDistribution):
-                        labelWeights[label] += math.log(distribution.probability(feature.value))
+                        probability = distribution.probability(feature.value)
                     elif isinstance(distribution, distributions.ContinuousDistribution):
-                        labelWeights[label] += math.log(distribution.pdf(feature.value))
+                        probability = distribution.pdf(feature.value)
                     else:
-                        raise Exception("invalid probability distribution")
+                        raise Exception("Naive Bayes Training Error: Invalid probability distribution")
+            
                 else:
                     if issubclass(feature.distribution, distributions.Binary):
-                        distribution = distributions.Binary(0, self.labelCounts[label])
-                        labelWeights[label] += math.log(distribution.probability(True))
+                        distribution = distributions.Binary(0, self.priors[label])
+                        probability = distribution.probability(feature.value)
                     else:
-                        raise Exception("non-binary features must be present for all training examples")
+                        raise Exception("Naive Bayes Training Error: Non-binary features must be present for all training examples")
+
+                if probability == 0.0: labelWeights[label] = float("-inf")
+                else: labelWeights[label] += math.log(probability)
 
         return labelWeights
-
-    def classify(self, object):
-        labelWeights = self.__labelWeights(object)
-        return max(labelWeights.iteritems(), key=operator.itemgetter(1))[0]
-
+    
     def probability(self, object, label):
         labelWeights = self.__labelWeights(object)
+        
         numerator = labelWeights[label]
+        if numerator == float("-inf"): return 0.0
+        
         denominator = 0.0
+        minWeight = min(labelWeights.iteritems(), key=operator.itemgetter(1))[1]
         for label in labelWeights:
-            denominator += math.exp(labelWeights[label])
+            weight = labelWeights[label]
+            if minWeight < 0.0: weight /= (-minWeight)
+            denominator += math.exp(weight)
         denominator = math.log(denominator)
+        
         return math.exp(numerator - denominator)
 
-    def featurize(self, object):
-        if self.featurizer is None:
-            raise Exception("If no featurizer is provided upon initialization, self.featurize must be overridden.")
-        return self.featurizer(object)
+    def probabilities(self, object):
+        labelProbabilities = collections.Counter()
+        for label in self.priors:
+            labelProbabilities[label] = self.probability(object, label)
+        return labelProbabilities
+
+    def classify(self, object, costMatrix=None):
+        if costMatrix is None:
+            labelWeights = self.__labelWeights(object)
+            return max(labelWeights.iteritems(), key=operator.itemgetter(1))[0]
+        
+        else:
+            labelCosts = collections.Counter()
+            labelProbabilities = self.probabilities(object)
+            for predictedLabel in labelProbabilities:
+                if predictedLabel not in costMatrix: raise Exception("Naive Bayes Prediction Error: Cost matrix does not include all labels.")
+                cost = 0.0
+                for actualLabel in labelProbabilities:
+                    if actualLabel not in costMatrix: raise Exception("Naive Bayes Prediction Error: Cost matrix does not include all labels.")
+                    cost += labelProbabilities[predictedLabel] * costMatrix[predictedLabel][actualLabel]
+                labelCosts[predictedLabel] = cost
+            return min(labelCosts.iteritems(), key=operator.itemgetter(1))[0]
+
+    def accuracy(self, objects, goldLabels):
+        if len(objects) == 0 or len(objects) != len(goldLabels):
+            raise ValueError("Malformed data")
+        
+        numCorrect = 0
+        for index, object in enumerate(objects):
+            if self.classify(object) == goldLabels[index]:
+                numCorrect += 1
+        return float(numCorrect) / float(len(objects))
