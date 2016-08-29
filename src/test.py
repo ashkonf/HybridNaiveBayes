@@ -14,38 +14,29 @@ data_set_slice = len(data_points) / 2
 training_set = (data_points[:data_set_slice], labels[:data_set_slice])
 test_set = (data_points[data_set_slice:], labels[data_set_slice:])
 
-feature_distributions = [
-    distributions.Multinomial, # Checking account status is bucketed and therefore categorical
-    distributions.Exponential, # Duration in months is continuous and probably follows a power law distribution
-    distributions.Multinomial, # Credit history is categorical
-    distributions.Multinomial, # Purpose is categorical
-    distributions.Gaussian, # Credit amount is continuous and probably follows a normal distribution
-    distributions.Multinomial, # Savings account status is bucketed and therefore categorical
-    distributions.Multinomial, # Unemployment duration is bucketed and therefore categorical
-    distributions.Gaussian, # Installment rate is continuous and probably follows a normal distribution
-    distributions.Multinomial, # Personal status is categorical
-    distributions.Multinomial, # Other debtors is categorical
-    distributions.Exponential, # Present residence since is continuous and probably follows a power law distribution
-    distributions.Multinomial, # Property status is categorical
-    distributions.Gaussian, # Age is continuous and probably follows a normal distribution
-    distributions.Multinomial, # Other installment plans is categorical
-    distributions.Multinomial, # Housing is categorical
-    distributions.Exponential, # Number of credit cards is continuous and probably follows a power law distribution
-    distributions.Multinomial, # Job is categorical
-    distributions.Exponential, # Number of people liable continuous and probably follows a power law distribution
-    distributions.Multinomial, # Telephone is categorical
-    distributions.Multinomial, # Foreign worker is categorical
-]
-
 def featurizer(data_point):
-    features = []
-    for index, value in enumerate(data_point):
-        name = str(index)
-        distribution = feature_distributions[index]
-        try: value = float(value)
-        except: pass
-        features.append(nb.Feature(name, distribution, value))
-    return features
+    return [
+        nb.Feature("Checking account status", distributions.Multinomial, data_point[0]), # bucketed and therefore categorical
+        nb.Feature("Duration in months", distributions.Exponential, float(data_point[1])), # continuous and probably follows a power law distribution
+        nb.Feature("Credit history", distributions.Multinomial, data_point[2]), # categorical
+        nb.Feature("Purpose", distributions.Multinomial, data_point[3]), # categorical
+        nb.Feature("Credit amount", distributions.Gaussian, float(data_point[4])), # continuous and probably follows a normal distribution
+        nb.Feature("Savings account status", distributions.Multinomial, data_point[5]), # bucketed and therefore categorical
+        nb.Feature("Unemployment duration", distributions.Multinomial, data_point[6]), # bucketed and therefore categorical
+        nb.Feature("Installment rate", distributions.Gaussian, float(data_point[7])), # continuous and probably follows a normal distribution
+        nb.Feature("Personal status", distributions.Multinomial, data_point[8]), # categorical
+        nb.Feature("Other debtors", distributions.Multinomial, data_point[9]), # categorical
+        nb.Feature("Present residence", distributions.Exponential, float(data_point[10])), # continuous and probably follows a power law distribution
+        nb.Feature("Property status", distributions.Multinomial, data_point[11]), # categorical
+        nb.Feature("Age", distributions.Gaussian, float(data_point[12])), # continuous and probably follows a normal distribution
+        nb.Feature("Other installment plans", distributions.Multinomial, data_point[13]), # categorical
+        nb.Feature("Housing", distributions.Multinomial, data_point[14]), # categorical
+        nb.Feature("Number of credit cards", distributions.Exponential, float(data_point[15])), # continuous and probably follows a power law distribution
+        nb.Feature("Job", distributions.Multinomial, data_point[16]), # categorical
+        nb.Feature("Number of people liable", distributions.Exponential, float(data_point[17])), # continuous and probably follows a power law distribution
+        nb.Feature("Telephone", distributions.Multinomial, data_point[18]), # categorical
+        nb.Feature("Foreign worker", distributions.Multinomial, data_point[19]) # categorical
+    ]
 
 classifier = nb.NaiveBayesClassifier(featurizer)
 classifier.train(training_set[0], training_set[1])
