@@ -7,6 +7,10 @@ A generalized implementation of the Naive Bayes classifier in Python that provid
 2. Support for both discrete and continuous ordered features.
 3. Support for modeling ordered features using arbitrary probability distributions.
 
+## Setup
+
+There's not much to it; just include the nb.py and distributions.py files in your project, and use away!
+
 ## Details
 
 Most Naive Bayes implementations allow only for categorical features. A small number of implementations, such as scikit-learn's implementation of the Gaussian Naive Bayes classifier, allow for ordered features. These implementations sacrifice functionality to do so. For example, scikit-learn's implementation of the Gaussian Naive Bayes classifier sacrifices support for categorical features and models every feature using the Normal Distribution. Note that because it models all ordered features using the Normal Distribution, it only supports continuous ordered features and provides no support for discrete ordered features.
