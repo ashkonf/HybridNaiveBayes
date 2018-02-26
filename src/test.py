@@ -15,6 +15,7 @@ training_set = (data_points[:data_set_slice], labels[:data_set_slice])
 test_set = (data_points[data_set_slice:], labels[data_set_slice:])
 
 def featurizer(data_point):
+    # Massaging data into the format expected by the Naive Bayes classifier implementation:
     return [
         nb.Feature("Checking account status", distributions.Multinomial, data_point[0]), # bucketed and therefore categorical
         nb.Feature("Duration in months", distributions.Exponential, float(data_point[1])), # continuous and probably follows a power law distribution
@@ -38,6 +39,10 @@ def featurizer(data_point):
         nb.Feature("Foreign worker", distributions.Multinomial, data_point[19]) # categorical
     ]
 
-classifier = nb.NaiveBayesClassifier(featurizer)
-classifier.train(training_set[0], training_set[1])
-print "Accuracy = %s" % classifier.accuracy(test_set[0], test_set[1])
+def main():
+    classifier = nb.NaiveBayesClassifier(featurizer)
+    classifier.train(training_set[0], training_set[1])
+    print "Accuracy = %s" % classifier.accuracy(test_set[0], test_set[1])
+
+if __name__ == "__main__":
+    main()
