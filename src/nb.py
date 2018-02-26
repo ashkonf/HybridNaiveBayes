@@ -4,7 +4,6 @@ import collections
 import math
 import operator
 import copy
-
 import distributions
 
 ## Feature ##############################################################################
