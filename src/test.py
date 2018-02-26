@@ -15,7 +15,7 @@ training_set = (data_points[:data_set_slice], labels[:data_set_slice])
 test_set = (data_points[data_set_slice:], labels[data_set_slice:])
 
 def featurizer(data_point):
-    # Massaging data into the format expected by the Naive Bayes classifier implementation:
+    # Massaging a data point into the format the Naive Bayes classifier implementation expects of feature vectors:
     return [
         nb.Feature("Checking account status", distributions.Multinomial, data_point[0]), # bucketed and therefore categorical
         nb.Feature("Duration in months", distributions.Exponential, float(data_point[1])), # continuous and probably follows a power law distribution
