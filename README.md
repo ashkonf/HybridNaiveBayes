@@ -21,6 +21,6 @@ See Derivation.pdf for a full mathematical justification of this implementation 
 
 ## Sample Usage
 
-TL;DR: Run **test.py**.
+__TL;DR__: Run **test.py**.
 
-More Details: For an sample usage of this Naive Bayes classifier implementation, see **test.py**. It demonstrates how to use the classifier by downloading a credit-related data set hosted by UCI, training the classifier on half the data in the data set, and evaluating the classifier's performance on the other half. One can access the data [here](https://archive.ics.uci.edu/ml/machine-learning-databases/statlog/german/german.data), and read more about its composition [here](https://archive.ics.uci.edu/ml/datasets/Statlog+(German+Credit+Data)).
+__More Details__: For an sample usage of this Naive Bayes classifier implementation, see **test.py**. It demonstrates how to use the classifier by downloading a credit-related data set hosted by UCI, training the classifier on half the data in the data set, and evaluating the classifier's performance on the other half. One can access the data [here](https://archive.ics.uci.edu/ml/machine-learning-databases/statlog/german/german.data), and read more about its composition [here](https://archive.ics.uci.edu/ml/datasets/Statlog+(German+Credit+Data)).
