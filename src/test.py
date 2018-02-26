@@ -40,6 +40,7 @@ def featurizer(data_point):
     ]
 
 def main():
+    # Creating, training and testing the classifier:
     classifier = nb.NaiveBayesClassifier(featurizer)
     classifier.train(training_set[0], training_set[1])
     print "Accuracy = %s" % classifier.accuracy(test_set[0], test_set[1])
