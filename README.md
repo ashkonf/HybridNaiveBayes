@@ -9,7 +9,7 @@ A generalized implementation of the Naive Bayes classifier in Python that provid
 
 ## Setup
 
-There's not much to it; just include the *nb.py* and *distributions.py* files in your project, and use away!
+There's not much to it; just include the *nb.py* and *distributions.py* files in your project, and use away! There are no dependencies.
 
 ## Details
 
